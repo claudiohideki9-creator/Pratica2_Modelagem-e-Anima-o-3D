@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sol Alto — Missão Reaplique!</title>
+<style>
+:root{--navy:#073B66;--blue:#0B83C9;--yellow:#FFD447;--orange:#FF7A1A;--sand:#FFF1C7;--green:#38B66B}
+*{box-sizing:border-box} html,body{height:100%;margin:0} body{background:#052d4e;font-family:Arial,sans-serif;display:grid;place-items:center;overflow:hidden;color:white}
+#wrap{position:relative;width:min(100vw,540px);height:min(100vh,960px);aspect-ratio:9/16;background:#66d1ff;overflow:hidden}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center;background:linear-gradient(#66d1ff55,#073B66cc)}
+.screen[hidden]{display:none}.logo{width:78%;max-width:410px}.hero{width:48%;max-height:42%;object-fit:contain}
+h1,h2,p{margin:0}.tag{font-size:22px;font-weight:800;text-shadow:0 2px #073B66}.btn{border:5px solid #073B66;border-radius:999px;padding:14px 36px;font-weight:900;font-size:24px;background:#FFD447;color:#073B66;cursor:pointer}
+.small{font-size:12px;background:#073B66cc;padding:8px 12px;border-radius:12px}.score{font-size:72px;color:#FFD447;text-shadow:0 4px #073B66}
+.card{background:#fff;color:#073B66;padding:18px;border-radius:20px;border:5px solid #073B66;max-width:430px}
+</style></head>
+<body><div id="wrap">
+<canvas id="game" width="540" height="960"></canvas>
+<section id="start" class="screen">
+<img class="logo" src="../assets/ui_logo_sol-alto_v01.png">
+<img class="hero" src="../assets/mascote_sunny_estado-parado_v01.png">
+<p class="tag">Pegue o protetor, mantenha a proteção e evite o sol forte!</p>
+<button class="btn" id="play">JOGAR</button>
+<p class="small">Jogo promocional fictício criado com auxílio de IA generativa para fins educacionais.</p>
+</section>
+<section id="end" class="screen" hidden>
+<h2>FIM DE PRAIA!</h2><div class="score" id="finalScore">0</div>
+<div class="card"><b>Curta o verão com proteção.</b><br>Lembre-se: <b>REAPLIQUE!</b><br><br>Campanha fictícia Sol Alto.</div>
+<button class="btn" id="again">JOGAR DE NOVO</button>
+<button class="btn" id="share" style="background:#38B66B">COMPARTILHAR</button>
+<p class="small">Jogo fictício. Nenhum dado pessoal é coletado. Criado com auxílio de IA.</p>
+</section>
+</div>
+<script>
+const c=document.getElementById('game'),x=c.getContext('2d'),W=540,H=960,D=45;
+const A={}; const names=['cenario_praia_fundo_v01','mascote_sunny_estado-parado_v01','mascote_sunny_estado-andar_v01','mascote_sunny_estado-pegar_v01','mascote_sunny_estado-ops_v01','mascote_sunny_estado-protegido_v01','mascote_sunny_estado-calor_v01'];
+let loaded=0; for(const n of names){let i=new Image;i.onload=()=>loaded++;i.src='../assets/'+n+'.png';A[n]=i}
+let mode='start',t=0,score=0,prot=100,px=270,target=270,items=[],spawn=0,state='parado',stateT=0,shield=0,last=performance.now(),keys={};
+function reset(){mode='play';t=0;score=0;prot=100;px=270;target=270;items=[];spawn=.5;state='parado';shield=0;document.getElementById('start').hidden=true;document.getElementById('end').hidden=true}
+function add(){let r=Math.random(),type=r<.28?'protetor':r<.48?'agua':r<.65?'oculos':r<.88?'sol':'especial';items.push({type,x:45+Math.random()*450,y:-50,v:180+Math.random()*90+t*3})}
+function hit(it){if(it.type==='protetor'){score+=10;prot=Math.min(100,prot+35);state='pegar';stateT=.3}
+else if(it.type==='agua'||it.type==='oculos'){score+=5;state='pegar';stateT=.25}
+else if(it.type==='especial'){score+=20;prot=100;shield=5;state='protegido'}
+else if(it.type==='sol'){if(shield<=0){score=Math.max(0,score-10);prot=Math.max(0,prot-18);state='ops';stateT=.5}else score+=2} it.dead=true}
+function update(dt){if(mode!=='play')return;t+=dt;if(keys.ArrowLeft)target-=330*dt;if(keys.ArrowRight)target+=330*dt;target=Math.max(55,Math.min(485,target));px+=(target-px)*Math.min(1,dt*12);
+if(shield>0){shield-=dt;if(shield<=0)state='parado'}else prot=Math.max(0,prot-2.4*dt);if(prot===0&&shield<=0)state='calor';
+if(stateT>0){stateT-=dt;if(stateT<=0)state=shield>0?'protegido':prot===0?'calor':'parado'}
+spawn-=dt;if(spawn<=0){add();spawn=Math.max(.34,.85-t*.008)}
+for(const it of items){it.y+=it.v*dt;if(Math.hypot(it.x-px,it.y-760)<75)hit(it);if(it.y>900)it.dead=true}items=items.filter(i=>!i.dead);
+if(t>=D){mode='end';document.getElementById('finalScore').textContent=score;document.getElementById('end').hidden=false}}
+function itemDraw(it){x.save();x.translate(it.x,it.y);if(it.type==='sol'){x.fillStyle='#FFD447';x.beginPath();x.arc(0,0,30,0,7);x.fill();x.strokeStyle='#FF7A1A';x.lineWidth=8;for(let a=0;a<8;a++){let q=a*Math.PI/4;x.beginPath();x.moveTo(Math.cos(q)*38,Math.sin(q)*38);x.lineTo(Math.cos(q)*55,Math.sin(q)*55);x.stroke()}}
+else if(it.type==='agua'){x.fillStyle='#4DB8FF';x.fillRect(-22,-35,44,70);x.fillStyle='#073B66';x.fillRect(-12,-48,24,14)}
+else if(it.type==='oculos'){x.fillStyle='#073B66';x.beginPath();x.arc(-22,0,22,0,7);x.arc(22,0,22,0,7);x.fill();x.fillRect(-8,-5,16,8)}
+else{x.fillStyle=it.type==='especial'?'#FFD447':'white';x.strokeStyle='#FF7A1A';x.lineWidth=5;x.beginPath();x.roundRect(-27,-42,54,84,12);x.fill();x.stroke();x.fillStyle='#FF7A1A';x.fillRect(-12,-56,24,15);x.fillStyle='#073B66';x.font='bold 12px Arial';x.textAlign='center';x.fillText('SOL',0,-4);x.fillText('ALTO',0,11)}x.restore()}
+function draw(){x.clearRect(0,0,W,H);if(A.cenario_praia_fundo_v01.complete)x.drawImage(A.cenario_praia_fundo_v01,0,0,W,H);
+x.fillStyle='#073B66cc';x.fillRect(18,18,504,86);x.fillStyle='white';x.font='bold 24px Arial';x.fillText('PONTOS '+score,34,52);x.textAlign='right';x.fillText('TEMPO '+Math.max(0,Math.ceil(D-t)),505,52);x.textAlign='left';
+x.fillStyle='#fff';x.fillRect(35,70,470,18);x.fillStyle=prot>35?'#38B66B':'#FF7A1A';x.fillRect(35,70,470*prot/100,18);x.strokeStyle='#073B66';x.lineWidth=4;x.strokeRect(35,70,470,18);
+for(const it of items)itemDraw(it);let key='mascote_sunny_estado-'+state+'_v01';let im=A[key]||A.mascote_sunny_estado-parado_v01;if(im&&im.complete)x.drawImage(im,px-80,680,160,160);
+if(mode==='play'&&D-t<=10){x.fillStyle='#FF7A1A';x.font='bold 30px Arial';x.textAlign='center';x.fillText('RETA FINAL!',W/2,140);x.textAlign='left'}
+if(mode==='play'&&shield>0){x.strokeStyle='#FFD447';x.lineWidth=12;x.strokeRect(6,6,W-12,H-12);x.fillStyle='#FFD447';x.font='bold 24px Arial';x.textAlign='center';x.fillText('PROTEÇÃO MÁXIMA!',W/2,180);x.textAlign='left'}}
+function loop(now){let dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+document.getElementById('play').onclick=reset;document.getElementById('again').onclick=reset;document.getElementById('share').onclick=()=>navigator.clipboard?.writeText('Fiz '+score+' pontos no Sol Alto — Missão Reaplique! Consegue me passar?');
+addEventListener('keydown',e=>keys[e.key]=true);addEventListener('keyup',e=>keys[e.key]=false);
+function pos(e){let r=c.getBoundingClientRect(),cx=(e.clientX-r.left)/r.width*W;target=cx}
+c.addEventListener('pointerdown',pos);c.addEventListener('pointermove',e=>{if(e.buttons)pos(e)});
+</script></body></html>

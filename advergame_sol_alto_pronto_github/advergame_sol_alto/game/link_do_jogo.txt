@@ -1,0 +1,7 @@
+SOL ALTO — MISSÃO REAPLIQUE!
+
+Após publicar no GitHub Pages, cole aqui a URL real:
+
+https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/game/
+
+Também atualize a mesma URL no README.md.
