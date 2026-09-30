@@ -6,7 +6,7 @@ Disciplina: Modelagem e Animação 3D — FMU
 ## 🎮 Jogue no navegador
 **Link do jogo:** depois de ativar o GitHub Pages, substitua a linha abaixo pela URL gerada:
 
-`https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/game/`
+`[https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/game/](https://claudiohideki9-creator.github.io/Pratica2_Modelagem-e-Anima-o-3D/advergame_sol_alto_pronto_github/advergame_sol_alto/game/)`
 
 > Configuração sugerida no GitHub: **Settings → Pages → Deploy from a branch → main / (root)**.
 
@@ -43,7 +43,7 @@ Disciplina: Modelagem e Animação 3D — FMU
 3. Abra **Settings → Pages**.
 4. Em **Build and deployment**, escolha **Deploy from a branch**.
 5. Selecione `main` e `/ (root)` e salve.
-6. O jogo ficará em `https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/game/`.
+6. O jogo ficará em `[https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/game/](https://claudiohideki9-creator.github.io/Pratica2_Modelagem-e-Anima-o-3D/advergame_sol_alto_pronto_github/advergame_sol_alto/game/)`.
 7. Atualize esse endereço neste README e em `game/link_do_jogo.txt`.
 8. Teste o link no celular e em uma aba anônima.
 
